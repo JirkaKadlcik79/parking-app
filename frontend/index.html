@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezervace parkovacích míst - Firma</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        /* LOGIN OBRAZOVKA */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: center;
+        }
+
+        .login-subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="date"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1em;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* HLAVNÍ APLIKACE */
+        .app-container {
+            display: none;
+        }
+
+        .app-container.active {
+            display: block;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .badge-owner {
+            background: #10b981;
+            color: white;
+        }
+
+        .badge-guest {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .user-avatar {
+            position: relative;
+        }
+
+        .avatar-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .avatar-circle:hover {
+            transform: scale(1.1);
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 250px;
+            padding: 15px;
+            z-index: 1000;
+        }
+
+        .user-dropdown.active {
+            display: block;
+        }
+
+        .dropdown-header {
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 12px;
+        }
+
+        .dropdown-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .dropdown-type {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .dropdown-spot {
+            font-size: 0.9em;
+            color: #667eea;
+            margin-top: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .dropdown-spot:hover {
+            color: #5568d3;
+            text-decoration: underline;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 10px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .btn-logout:hover {
+            background: #dc2626;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .legend {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .legend-items {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 2px solid #ddd;
+        }
+
+        .status-occupied { background: #94a3b8; }
+        .status-available { background: #10b981; }
+        .status-reserved { background: #ef4444; }
+        .status-my-spot { background: #3b82f6; }
+        .status-electric { background: #8b5cf6; }
+        .status-management { background: #374151; }
+
+        /* PARKING GRID */
+        .parking-grid {
+            display: grid;
+            grid-template-columns: repeat(24, 64px);
+            grid-template-rows: 120px 40px 120px 120px;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .parking-spot {
+            width: 64px;
+            height: 120px;
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 3px solid transparent;
+            position: relative;
+            overflow: visible;
+        }
+
+        .parking-spot:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .parking-spot.clickable:hover {
+            border-color: #667eea;
+        }
+
+        .parking-spot.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .parking-spot.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .spot-number {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .spot-owner-name {
+            font-size: 0.7em;
+            color: white;
+            text-align: center;
+            opacity: 0.9;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        .spot-date-range {
+            font-size: 0.65em;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            margin: 3px 0;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .spot-offer-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: help;
+            z-index: 10;
+        }
+
+        .offer-paid {
+            background: rgba(254, 243, 199, 0.95);
+        }
+
+        .offer-favor {
+            background: rgba(252, 231, 243, 0.95);
+        }
+
+        .spot-offer-badge[data-tooltip] {
+            position: relative;
+        }
+
+        .spot-offer-badge[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            white-space: nowrap;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .spot-offer-badge[data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1f2937;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .parking-spot[data-tooltip] {
+            position: relative;
+        }
+
+        .parking-spot[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .parking-spot[data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #1f2937;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+            width: auto;
+            padding: 0;
+        }
+
+        .btn-close:hover {
+            color: #333;
+        }
+
+        .spot-detail {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .detail-value a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .detail-value a:hover {
+            color: #5568d3;
+            text-decoration: underline;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-message {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            color: #1e40af;
+        }
+
+        .help-section {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea40;
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin-top: 30px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .help-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .help-content {
+            color: #4b5563;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .help-icon {
+            font-size: 1.5em;
+        }
+
+        @media (max-width: 1920px) {
+            .parking-grid {
+                grid-template-columns: repeat(24, 56px);
+                grid-template-rows: 108px 40px 108px 108px;
+            }
+
+            .parking-spot {
+                width: 56px;
+                height: 108px;
+            }
+
+            .spot-number {
+                font-size: 1.1em;
+            }
+
+            .spot-owner-name {
+                font-size: 0.65em;
+            }
+
+            .spot-offer-badge {
+                width: 22px;
+                height: 22px;
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 1600px) {
+            .parking-grid {
+                grid-template-columns: repeat(24, 48px);
+                grid-template-rows: 96px 30px 96px 96px;
+                gap: 8px;
+            }
+
+            .parking-spot {
+                width: 48px;
+                height: 96px;
+            }
+
+            .spot-number {
+                font-size: 1em;
+            }
+
+            .spot-owner-name {
+                font-size: 0.6em;
+            }
+
+            .spot-offer-badge {
+                width: 20px;
+                height: 20px;
+                font-size: 0.8em;
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .parking-grid {
+                grid-template-columns: repeat(24, 40px);
+                grid-template-rows: 84px 25px 84px 84px;
+                gap: 6px;
+            }
+
+            .parking-spot {
+                width: 40px;
+                height: 84px;
+                padding: 8px;
+            }
+
+            .spot-number {
+                font-size: 0.9em;
+            }
+
+            .spot-owner-name {
+                font-size: 0.55em;
+            }
+
+            .spot-offer-badge {
+                width: 18px;
+                height: 18px;
+                font-size: 0.75em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .help-section {
+                padding: 20px;
+            }
+
+            .help-title {
+                font-size: 1.2em;
+            }
+
+            .help-content {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN OBRAZOVKA -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <h1 class="login-title">🚗 Parkování</h1>
+            <p class="login-subtitle">Rezervační systém parkovacích míst</p>
+
+            <div class="form-group">
+                <label for="userName">Jméno:</label>
+                <input type="text" id="userName" placeholder="Zadej své jméno">
+            </div>
+
+            <div class="form-group">
+                <label for="userType">Typ účtu:</label>
+                <select id="userType" onchange="handleUserTypeChange()">
+                    <option value="">-- Vyber typ --</option>
+                    <option value="owner">Mám parkovací místo</option>
+                    <option value="guest">Nemám parkovací místo</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="spotSelectionGroup" style="display: none;">
+                <label for="userSpot">Tvoje parkovací místo:</label>
+                <select id="userSpot">
+                    <option value="">-- Vyber místo --</option>
+                </select>
+            </div>
+
+            <button class="btn-primary" onclick="login()">Přihlásit se</button>
+        </div>
+    </div>
+
+    <!-- HLAVNÍ APLIKACE -->
+    <div class="app-container" id="appContainer">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="user-info">
+                    <h2>🚗 Parking - Atlas group</h2>
+                </div>
+                <div class="user-avatar">
+                    <div class="avatar-circle" id="avatarCircle" onclick="toggleUserDropdown()">
+                        <span id="avatarInitials"></span>
+                    </div>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-header">
+                            <div class="dropdown-name" id="dropdownName"></div>
+                            <div class="dropdown-type" id="dropdownType"></div>
+                            <div class="dropdown-spot" id="dropdownSpot"></div>
+                        </div>
+                        <button class="btn-logout" onclick="logout()">Odhlásit se</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hlavní obsah -->
+        <div class="main-content">
+            <!-- Legenda -->
+            <div class="legend">
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color status-occupied"></div>
+                        <span>Dlouhodobě obsazeno</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color status-available"></div>
+                        <span>Volné (k rezervaci)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color status-reserved"></div>
+                        <span>Rezervováno</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color status-electric"></div>
+                        <span>⚡ Elektromobily (nerezervovatelné)</span>
+                    </div>
+                    <div class="legend-item" id="mySpotLegend" style="display: none;">
+                        <div class="legend-color status-my-spot"></div>
+                        <span>Tvoje místo</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parking Grid -->
+            <div class="parking-grid" id="parkingGrid"></div>
+
+            <!-- Nápověda -->
+            <div class="help-section" id="helpSection">
+                <div class="help-title">
+                    <span class="help-icon" id="helpIcon"></span>
+                    <span id="helpTitle"></span>
+                </div>
+                <div class="help-content" id="helpContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PRO DETAIL MÍSTA -->
+    <div class="modal" id="spotModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Detail místa</h2>
+                <button class="btn-close" onclick="closeModal()">×</button>
+            </div>
+
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // GLOBÁLNÍ DATA
+        const API_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+        let parkingSpots = [];
+
+        // Inicializace - načtení dat z API nebo vytvoření dummy dat
+        async function loadParkingSpotsFromAPI() {
+            try {
+                const response = await fetch(`${API_URL}/spots`);
+                const dbSpots = await response.json();
+
+                // Pokud je databáze prázdná, inicializovat s dummy daty
+                if (dbSpots.length === 0) {
+                    console.log('Databáze je prázdná, inicializuji dummy data...');
+                    const dummyData = generateDummySpots();
+                    await fetch(`${API_URL}/init-data`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dummyData)
+                    });
+
+                    // Znovu načíst
+                    const response2 = await fetch(`${API_URL}/spots`);
+                    const spots = await response2.json();
+                    return convertDBSpotsToAppFormat(spots);
+                }
+
+                return convertDBSpotsToAppFormat(dbSpots);
+            } catch (error) {
+                console.error('Chyba při načítání dat z API:', error);
+                alert('Chyba: Nelze se připojit k backendu. Ujisti se, že server běží na http://localhost:3000');
+                throw error;
+            }
+        }
+
+        // Převést data z DB formátu na formát aplikace
+        function convertDBSpotsToAppFormat(dbSpots) {
+            return dbSpots.map(spot => ({
+                id: spot.id,
+                number: spot.number,
+                owner: spot.owner_name,
+                ownerEmail: spot.owner_email,
+                isElectric: spot.is_electric === 1,
+                isManagement: spot.is_management === 1,
+                gridRow: spot.grid_row,
+                gridCol: spot.grid_col,
+                availableFrom: spot.date_from,
+                availableTo: spot.date_to,
+                offerType: spot.offer_type,
+                offerNote: spot.offer_note,
+                reservedByName: spot.reserved_by_name,
+                reservedBy: spot.reserved_by_name ? 'guest' : null,
+                offerId: spot.offer_id
+            }));
+        }
+
+        // Generovat dummy data (stejná logika jako initializeParkingSpots)
+        function generateDummySpots() {
+            const spots = [];
+
+            // Definice rozložení podle matice (řádek, sloupec, číslo místa)
+            const layout = [
+                // Řádek 1: sloupce A-X (1-24) = místa 34-57
+                ...Array.from({length: 24}, (_, i) => ({row: 1, col: i + 1, number: 34 + i})),
+
+                // Řádek 3:
+                // sloupce D-H (4-8) = místa 33-29 (reverzní)
+                {row: 3, col: 4, number: 33},
+                {row: 3, col: 5, number: 32},
+                {row: 3, col: 6, number: 31},
+                {row: 3, col: 7, number: 30},
+                {row: 3, col: 8, number: 29},
+
+                // sloupce K-R (11-18) = místa 67-60 (reverzní)
+                {row: 3, col: 11, number: 67},
+                {row: 3, col: 12, number: 66},
+                {row: 3, col: 13, number: 65},
+                {row: 3, col: 14, number: 64},
+                {row: 3, col: 15, number: 63},
+                {row: 3, col: 16, number: 62},
+                {row: 3, col: 17, number: 61},
+                {row: 3, col: 18, number: 60},
+
+                // sloupce W-X (23-24) = místa 59-58 (reverzní)
+                {row: 3, col: 23, number: 59},
+                {row: 3, col: 24, number: 58},
+
+                // Řádek 4:
+                // sloupce B-H (2-8) = místa 22-28
+                {row: 4, col: 2, number: 22},
+                {row: 4, col: 3, number: 23},
+                {row: 4, col: 4, number: 24},
+                {row: 4, col: 5, number: 25},
+                {row: 4, col: 6, number: 26},
+                {row: 4, col: 7, number: 27},
+                {row: 4, col: 8, number: 28}
+            ];
+
+            // Dummy data - majitelé míst
+            const owners = [
+                'Jan Novák', 'Eva Svobodová', 'Petr Dvořák', 'Marie Nováková',
+                'Tomáš Procházka', 'Lucie Veselá', 'Martin Černý', 'Kateřina Malá',
+                'Pavel Horák', 'Jana Pokorná', 'Michal Král', 'Petra Růžičková',
+                'Jakub Beneš', 'Lenka Marková', 'David Fiala', 'Monika Němcová',
+                'Filip Kučera', 'Tereza Vaňková', 'Ondřej Urban', 'Simona Bartošová',
+                'Marek Jelínek', 'Alena Čermáková', 'Radek Kříž', 'Barbora Doležalová',
+                'Jiří Sedláček', 'Veronika Holubová', 'Roman Blažek', 'Ivana Konečná',
+                'Stanislav Vávra', 'Hana Šimková', 'Vojtěch Kopecký', 'Zuzana Polívková',
+                'Milan Macháček', 'Kristýna Ostrá', 'Aleš Hrubý', 'Nikola Pavlíková',
+                'Miroslav Soukup', 'Denisa Krejčí', 'Ladislav Nagy', 'Kamila Fialová',
+                'Robert Malý', 'Lenka Nová', 'Jakub Černý', 'Petra Bílá'
+            ];
+
+            let ownerIndex = 0;
+            let spotId = 1;
+
+            // Funkce pro generování e-mailu ze jména
+            const generateEmail = (name) => {
+                if (!name || name === 'Volné místo') return null;
+                // Převést na lowercase, odstranit diakritiku, nahradit mezery tečkou
+                const normalized = name.toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '') // odstranění diakritiky
+                    .replace(/\s+/g, '.'); // mezery na tečky
+                return `${normalized}@atlasgroup.cz`;
+            };
+
+            // Vytvoř místa podle layoutu
+            layout.forEach(pos => {
+                const ownerName = owners[ownerIndex++] || 'Volné místo';
+                spots.push({
+                    id: spotId++,
+                    number: pos.number.toString(),
+                    owner: ownerName,
+                    ownerEmail: generateEmail(ownerName),
+                    availableFrom: null,
+                    availableTo: null,
+                    reservedBy: null,
+                    reservedByName: null,
+                    isElectric: false,
+                    isManagement: false,
+                    offerType: null, // 'paid' nebo 'favor'
+                    offerNote: null, // pro favor - text jako "bábovka"
+                    gridRow: pos.row,
+                    gridCol: pos.col
+                });
+            });
+
+            // UKÁZKOVÁ DATA - označit speciální místa a příklady stavů
+            // Najít místa podle čísla
+            const findSpot = (number) => spots.find(s => s.number === number.toString());
+
+            // Správa Atlas group - TMAVĚ ŠEDÁ (nerezervovatelné)
+            findSpot(59).isManagement = true;
+            findSpot(59).owner = 'Správa Atlas group';
+            findSpot(59).ownerEmail = 'sprava@atlasgroup.cz';
+            findSpot(58).isManagement = true;
+            findSpot(58).owner = 'Správa Atlas group';
+            findSpot(58).ownerEmail = 'sprava@atlasgroup.cz';
+            findSpot(34).isManagement = true;
+            findSpot(34).owner = 'Správa Atlas group';
+            findSpot(34).ownerEmail = 'sprava@atlasgroup.cz';
+            findSpot(35).isManagement = true;
+            findSpot(35).owner = 'Správa Atlas group';
+            findSpot(35).ownerEmail = 'sprava@atlasgroup.cz';
+            findSpot(36).isManagement = true;
+            findSpot(36).owner = 'Správa Atlas group';
+            findSpot(36).ownerEmail = 'sprava@atlasgroup.cz';
+
+            // Elektromobily - FIALOVÁ
+            findSpot(64).isElectric = true;
+
+            // Reální držitelé míst
+            findSpot(45).owner = 'Dalibor Podstuvka';
+            findSpot(45).ownerEmail = 'dalibor.podstuvka@atlasgroup.cz';
+            findSpot(55).owner = 'Jiří Kadlčík';
+            findSpot(55).ownerEmail = 'kadlcik@atlasgroup.cz';
+            findSpot(60).owner = 'Patrik Szewczyk';
+            findSpot(60).ownerEmail = 'patrik.szewczyk@atlasgroup.cz';
+
+            // Vytvořit ukázkové nabídky pro vybraná místa: 38, 41, 43, 44, 56
+            const offers = [];
+
+            // Místo 38 - volné TEĎ (paid)
+            offers.push({
+                spot_id: findSpot(38).id,
+                user_id: null,
+                date_from: '2025-10-01',
+                date_to: '2025-10-10',
+                offer_type: 'paid',
+                offer_note: null
+            });
+
+            // Místo 41 - volné TEĎ (favor)
+            offers.push({
+                spot_id: findSpot(41).id,
+                user_id: null,
+                date_from: '2025-10-01',
+                date_to: '2025-10-08',
+                offer_type: 'favor',
+                offer_note: 'Bábovka jako od babičky'
+            });
+
+            // Místo 43 - brzy k dispozici (paid)
+            offers.push({
+                spot_id: findSpot(43).id,
+                user_id: null,
+                date_from: '2025-10-05',
+                date_to: '2025-10-12',
+                offer_type: 'paid',
+                offer_note: null
+            });
+
+            // Místo 44 - brzy k dispozici (favor)
+            offers.push({
+                spot_id: findSpot(44).id,
+                user_id: null,
+                date_from: '2025-10-06',
+                date_to: '2025-10-15',
+                offer_type: 'favor',
+                offer_note: 'Káva z dobré kavárny'
+            });
+
+            // Místo 56 - volné TEĎ (favor)
+            offers.push({
+                spot_id: findSpot(56).id,
+                user_id: null,
+                date_from: '2025-10-01',
+                date_to: '2025-10-07',
+                offer_type: 'favor',
+                offer_note: 'Domácí koláč'
+            });
+
+            return { spots, offers };
+        }
+
+
+        // LOGIN
+        function handleUserTypeChange() {
+            const userType = document.getElementById('userType').value;
+            const spotSelectionGroup = document.getElementById('spotSelectionGroup');
+
+            if (userType === 'owner') {
+                spotSelectionGroup.style.display = 'block';
+                populateSpotSelection();
+            } else {
+                spotSelectionGroup.style.display = 'none';
+            }
+        }
+
+        function populateSpotSelection() {
+            const select = document.getElementById('userSpot');
+            select.innerHTML = '<option value="">-- Vyber místo --</option>';
+
+            parkingSpots.forEach(spot => {
+                // Elektromobilová a management místa nelze vybrat jako vlastní místo
+                if (!spot.isElectric && !spot.isManagement) {
+                    const option = document.createElement('option');
+                    option.value = spot.id;
+                    option.textContent = `${spot.number} - ${spot.owner}`;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        async function login() {
+            const userName = document.getElementById('userName').value.trim();
+            const userType = document.getElementById('userType').value;
+            const userSpot = document.getElementById('userSpot').value;
+
+            if (!userName) {
+                alert('Prosím zadej své jméno');
+                return;
+            }
+
+            if (!userType) {
+                alert('Prosím vyber typ účtu');
+                return;
+            }
+
+            if (userType === 'owner' && !userSpot) {
+                alert('Prosím vyber své parkovací místo');
+                return;
+            }
+
+            currentUser = {
+                name: userName,
+                type: userType,
+                spotId: userType === 'owner' ? parseInt(userSpot) : null
+            };
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appContainer').classList.add('active');
+
+            updateUserInfo();
+            renderParkingSpots();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('appContainer').classList.remove('active');
+            document.getElementById('userDropdown').classList.remove('active');
+
+            // Reset formuláře
+            document.getElementById('userName').value = '';
+            document.getElementById('userType').value = '';
+            document.getElementById('userSpot').value = '';
+            document.getElementById('spotSelectionGroup').style.display = 'none';
+        }
+
+        function updateUserInfo() {
+            const avatarInitials = document.getElementById('avatarInitials');
+            const dropdownName = document.getElementById('dropdownName');
+            const dropdownType = document.getElementById('dropdownType');
+            const dropdownSpot = document.getElementById('dropdownSpot');
+            const mySpotLegend = document.getElementById('mySpotLegend');
+
+            // Získat iniciály z jména
+            const nameParts = currentUser.name.trim().split(' ');
+            const initials = nameParts.length > 1
+                ? nameParts[0][0] + nameParts[nameParts.length - 1][0]
+                : nameParts[0][0];
+            avatarInitials.textContent = initials.toUpperCase();
+
+            // Nastavit dropdown
+            dropdownName.textContent = currentUser.name;
+
+            if (currentUser.type === 'owner') {
+                dropdownType.textContent = '👤 Nájemce parkovacího místa';
+                mySpotLegend.style.display = 'flex';
+
+                const spot = parkingSpots.find(s => s.id === currentUser.spotId);
+                dropdownSpot.textContent = `Místo č. ${spot.number}`;
+                dropdownSpot.onclick = () => {
+                    openSpotModal(spot);
+                    document.getElementById('userDropdown').classList.remove('active');
+                };
+            } else {
+                dropdownType.textContent = '👥 Bez parkovacího místa';
+                mySpotLegend.style.display = 'none';
+                dropdownSpot.textContent = '';
+                dropdownSpot.onclick = null;
+            }
+
+            // Nastavit nápovědu podle typu uživatele
+            updateHelpSection();
+        }
+
+        function updateHelpSection() {
+            const helpIcon = document.getElementById('helpIcon');
+            const helpTitle = document.getElementById('helpTitle');
+            const helpContent = document.getElementById('helpContent');
+
+            if (currentUser.type === 'owner') {
+                helpIcon.textContent = '🎯';
+                helpTitle.textContent = 'Jak to funguje pro držitele míst';
+                helpContent.innerHTML = `
+                    <strong>Nabídněte své místo k dispozici</strong> po dobu své nepřítomnosti kolegům,
+                    kteří nemají stálé parkovací místo buď <strong style="color: #92400e;">💰 za drobnou úplatu (25 Kč/den)</strong>,
+                    nebo <strong style="color: #9f1239;">🎁 Vámi zvolenou drobnost</strong> (např. bábovka, káva z dobré kavárny).
+                    <br><br>
+                    Klikněte na své parkovací místo a vyberte datum dostupnosti a typ nabídky.
+                `;
+            } else {
+                helpIcon.textContent = '🅿️';
+                helpTitle.textContent = 'Jak krátkodobé parkování funguje';
+                helpContent.innerHTML = `
+                    <strong>Využijte možnost krátkodobého stání</strong> na místech dlouhodobých abonentů
+                    parkovacích míst <strong style="color: #92400e;">💰 za drobnou úplatu (25 Kč/den)</strong>,
+                    nebo <strong style="color: #9f1239;">🎁 pozornost</strong>, kterou držitel místa pro rezervaci podmínil.
+                    <br><br>
+                    Volná místa jsou označena <strong style="color: #10b981;">zeleně</strong> a obsahují informaci o dostupnosti.
+                    Klikněte na dostupné místo a rezervujte si ho.
+                `;
+            }
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        // Zavřít dropdown při kliknutí mimo něj
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const avatar = document.getElementById('avatarCircle');
+
+            if (dropdown && avatar && !avatar.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // URČENÍ STAVU MÍSTA
+        function getSpotStatus(spot) {
+            // Elektromobilová místa mají vždy status 'electric'
+            if (spot.isElectric) {
+                return 'electric';
+            }
+
+            // Místa pro správu mají vždy status 'management'
+            if (spot.isManagement) {
+                return 'management';
+            }
+
+            // Pokud je rezervováno
+            if (spot.reservedBy) {
+                return 'reserved';
+            }
+
+            // Pokud je nabídnuto (nezávisle na datumu)
+            if (spot.availableFrom && spot.availableTo) {
+                return 'available';
+            }
+
+            // Jinak obsazeno majitelem
+            return 'occupied';
+        }
+
+        // VYKRESLENÍ PARKOVACÍCH MÍST podle grid pozic
+        function renderParkingSpots() {
+            const grid = document.getElementById('parkingGrid');
+            grid.innerHTML = '';
+
+            parkingSpots.forEach(spot => {
+                const status = getSpotStatus(spot);
+                const isMySpot = currentUser.type === 'owner' && spot.id === currentUser.spotId;
+
+                let clickable = false;
+                let tooltip = '';
+
+                // Elektromobilová a management místa nejsou nikdy kliknutelná
+                if (status === 'electric') {
+                    clickable = false;
+                    tooltip = 'Nelze - rezervováno pro elektromobily';
+                } else if (status === 'management') {
+                    clickable = false;
+                    tooltip = 'Nelze - správa budovy';
+                } else if (currentUser.type === 'owner' && isMySpot) {
+                    clickable = true;
+                } else if (currentUser.type === 'guest' && (status === 'available' || status === 'reserved')) {
+                    clickable = true;
+                } else if (status === 'occupied') {
+                    // Obsazená místa mají tooltip
+                    tooltip = 'Nelze rezervovat';
+                }
+
+                const spotDiv = document.createElement('div');
+                // Modrá barva jen když je to moje místo a NENÍ dostupné dnes
+                let showAsMySpot = false;
+                if (isMySpot) {
+                    if (status === 'occupied') {
+                        showAsMySpot = true;
+                    } else if (status === 'available' && spot.availableFrom) {
+                        // Kontrola, jestli je dostupné až v budoucnu
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const from = new Date(spot.availableFrom);
+                        from.setHours(0, 0, 0, 0);
+                        if (from > today) {
+                            showAsMySpot = true; // Dostupné až v budoucnu -> modrá
+                        }
+                    }
+                }
+                spotDiv.className = `parking-spot status-${showAsMySpot ? 'my-spot' : status} ${clickable ? 'clickable' : 'disabled'}`;
+                spotDiv.style.gridRow = spot.gridRow;
+                spotDiv.style.gridColumn = spot.gridCol;
+
+                if (tooltip) {
+                    spotDiv.setAttribute('data-tooltip', tooltip);
+                }
+
+                if (clickable) {
+                    spotDiv.onclick = () => openSpotModal(spot);
+                }
+
+                // Zobrazit datum na zelených (available) místech, pro ostatní placeholder
+                let dateInfo = '';
+                if (status === 'available' && spot.availableFrom && spot.availableTo) {
+                    const from = new Date(spot.availableFrom);
+                    const to = new Date(spot.availableTo);
+                    dateInfo = `<div class="spot-date-range">${from.getDate()}.${from.getMonth() + 1}. - ${to.getDate()}.${to.getMonth() + 1}.</div>`;
+                } else if ((status === 'reserved' || status === 'my-spot') && spot.offerType) {
+                    // Prázdný placeholder pro konzistentní výšku
+                    dateInfo = `<div class="spot-date-range" style="visibility: hidden;">00.0. - 00.0.</div>`;
+                }
+
+                // Badge pro typ nabídky
+                let offerBadge = '';
+                if (spot.offerType === 'paid' && (status === 'available' || status === 'reserved')) {
+                    offerBadge = `<div class="spot-offer-badge offer-paid" data-tooltip="25 Kč / den">💰</div>`;
+                } else if (spot.offerType === 'favor' && (status === 'available' || status === 'reserved')) {
+                    const favorTooltip = (spot.offerNote || 'Za pozornost').replace(/"/g, '&quot;');
+                    offerBadge = `<div class="spot-offer-badge offer-favor" data-tooltip="${favorTooltip}">🎁</div>`;
+                }
+
+                // Pro speciální místa zobrazíme ikony
+                let displayContent;
+                if (status === 'electric') {
+                    displayContent = `<div class="spot-number">⚡</div><div class="spot-owner-name">${spot.number}</div>`;
+                } else if (status === 'management') {
+                    displayContent = `<div class="spot-number">🏢</div><div class="spot-owner-name">${spot.number}</div>`;
+                } else if (status === 'available' || status === 'reserved') {
+                    // Pro volná a rezervovaná místa zobrazit číslo, datum (nebo placeholder) a majitele
+                    displayContent = `<div class="spot-number">${spot.number}</div>${dateInfo}<div class="spot-owner-name">${spot.owner}</div>`;
+                } else {
+                    displayContent = `<div class="spot-number">${spot.number}</div><div class="spot-owner-name">${spot.owner}</div>`;
+                }
+
+                spotDiv.innerHTML = `
+                    ${offerBadge}
+                    ${displayContent}
+                `;
+
+                grid.appendChild(spotDiv);
+            });
+        }
+
+        // MODAL PRO DETAIL MÍSTA
+        function openSpotModal(spot) {
+            const modal = document.getElementById('spotModal');
+            const modalBody = document.getElementById('modalBody');
+            const modalTitle = document.getElementById('modalTitle');
+
+            modalTitle.textContent = `Místo ${spot.number}`;
+
+            const status = getSpotStatus(spot);
+            const isMySpot = currentUser.type === 'owner' && spot.id === currentUser.spotId;
+
+            let content = `
+                <div class="spot-detail">
+                    <div class="detail-row">
+                        <span class="detail-label">Držitel:</span>
+                        <span class="detail-value">${spot.owner}</span>
+                    </div>
+            `;
+
+            if (spot.ownerEmail && !spot.isElectric) {
+                content += `
+                    <div class="detail-row">
+                        <span class="detail-label">Kontakt:</span>
+                        <span class="detail-value" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                            <a href="mailto:${spot.ownerEmail}" style="display: flex; align-items: center; gap: 5px;">
+                                📧 ${spot.ownerEmail}
+                            </a>
+                            <a href="https://teams.microsoft.com/l/chat/0/0?users=${spot.ownerEmail}"
+                               target="_blank"
+                               style="display: flex; align-items: center; gap: 5px; background: #5b5fc7; color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.9em;">
+                                💬 Teams
+                            </a>
+                        </span>
+                    </div>
+                `;
+            }
+
+            content += ``;
+
+            if (spot.availableFrom && spot.availableTo) {
+                content += `
+                    <div class="detail-row">
+                        <span class="detail-label">K dispozici:</span>
+                        <span class="detail-value">${formatDate(spot.availableFrom)} - ${formatDate(spot.availableTo)}</span>
+                    </div>
+                `;
+            }
+
+            if (spot.offerType) {
+                if (spot.offerType === 'paid') {
+                    content += `
+                        <div class="detail-row">
+                            <span class="detail-label">Nabídka:</span>
+                            <span class="detail-value" style="color: #92400e; font-weight: bold;">💰 25 Kč/den</span>
+                        </div>
+                    `;
+                } else if (spot.offerType === 'favor') {
+                    content += `
+                        <div class="detail-row">
+                            <span class="detail-label">Nabídka:</span>
+                            <span class="detail-value" style="color: #9f1239; font-weight: bold;">🎁 ${spot.offerNote || 'Za pozornost'}</span>
+                        </div>
+                    `;
+                }
+            }
+
+            if (spot.reservedBy) {
+                content += `
+                    <div class="detail-row">
+                        <span class="detail-label">Rezervováno:</span>
+                        <span class="detail-value">${spot.reservedByName}</span>
+                    </div>
+                `;
+            }
+
+            content += `</div>`;
+
+            // VLASTNÍK - svoje místo
+            if (isMySpot) {
+                if (!spot.availableFrom) {
+                    content += `
+                        <div class="info-message">
+                            💡 Toto je tvoje parkovací místo. Můžeš ho nabídnout k rezervaci.
+                        </div>
+                        <div class="form-group">
+                            <label>Volné od:</label>
+                            <input type="date" id="offerFrom" min="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        <div class="form-group">
+                            <label>Volné do:</label>
+                            <input type="date" id="offerTo" min="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        <div class="form-group">
+                            <label>Typ nabídky:</label>
+                            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="radio" name="offerType" value="paid" id="offerTypePaid" checked>
+                                    <span>💰 Úplatně (25 Kč/den)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="radio" name="offerType" value="favor" id="offerTypeFavor">
+                                    <span>🎁 Za pozornost (např. bábovka)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group" id="favorNoteGroup" style="display: none;">
+                            <label>Co by ti udělalo radost?</label>
+                            <input type="text" id="favorNote" placeholder="např. Bábovka jako od babičky">
+                        </div>
+                        <button class="btn-success" onclick="offerSpot(${spot.id})">Nabídnout k rezervaci</button>
+                    `;
+
+                    // Přidat event listenery po zobrazení modalu
+                    setTimeout(() => {
+                        const paidRadio = document.getElementById('offerTypePaid');
+                        const favorRadio = document.getElementById('offerTypeFavor');
+                        const favorNoteGroup = document.getElementById('favorNoteGroup');
+
+                        if (paidRadio && favorRadio && favorNoteGroup) {
+                            paidRadio.addEventListener('change', function() {
+                                favorNoteGroup.style.display = 'none';
+                            });
+                            favorRadio.addEventListener('change', function() {
+                                favorNoteGroup.style.display = 'block';
+                            });
+                        }
+                    }, 0);
+                } else if (spot.reservedBy) {
+                    content += `
+                        <div class="info-message">
+                            ✅ Tvoje místo je rezervované: ${spot.reservedByName}
+                        </div>
+                        <button class="btn-warning" onclick="cancelOffer(${spot.id})">Zrušit nabídku</button>
+                    `;
+                } else {
+                    content += `
+                        <div class="info-message">
+                            ✅ Tvoje místo je nabídnuto k rezervaci
+                        </div>
+                        <button class="btn-warning" onclick="cancelOffer(${spot.id})">Zrušit nabídku</button>
+                    `;
+                }
+            }
+            // HOST
+            else if (currentUser.type === 'guest') {
+                if (status === 'available') {
+                    if (spot.reservedBy === 'guest' && spot.reservedByName === currentUser.name) {
+                        content += `
+                            <div class="info-message">
+                                ✅ Toto místo máš rezervované
+                            </div>
+                            <button class="btn-warning" onclick="cancelReservation(${spot.id})">Zrušit rezervaci</button>
+                        `;
+                    } else if (!spot.reservedBy) {
+                        let offerInfo = '';
+                        if (spot.offerType === 'paid') {
+                            offerInfo = '<br>💰 <strong>25 Kč/den</strong>';
+                        } else if (spot.offerType === 'favor') {
+                            offerInfo = `<br>🎁 <strong>${spot.offerNote}</strong>`;
+                        }
+                        content += `
+                            <div class="info-message">
+                                ✅ Toto místo je aktuálně volné a můžeš ho rezervovat${offerInfo}
+                            </div>
+                            <button class="btn-success" onclick="reserveSpot(${spot.id})">Rezervovat místo</button>
+                        `;
+                    } else {
+                        content += `
+                            <div class="info-message">
+                                ❌ Toto místo je již rezervované někým jiným
+                            </div>
+                        `;
+                    }
+                } else if (status === 'reserved') {
+                    if (spot.reservedByName === currentUser.name) {
+                        content += `
+                            <div class="info-message">
+                                ✅ Toto místo máš rezervované
+                            </div>
+                            <button class="btn-warning" onclick="cancelReservation(${spot.id})">Zrušit rezervaci</button>
+                        `;
+                    } else {
+                        content += `
+                            <div class="info-message">
+                                ❌ Toto místo je již rezervované: ${spot.reservedByName}
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            modalBody.innerHTML = content;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('spotModal').classList.remove('active');
+        }
+
+        // AKCE - Nabídnout místo (vlastník)
+        async function offerSpot(spotId) {
+            const from = document.getElementById('offerFrom').value;
+            const to = document.getElementById('offerTo').value;
+            const offerType = document.querySelector('input[name="offerType"]:checked').value;
+            const favorNote = document.getElementById('favorNote') ? document.getElementById('favorNote').value : '';
+
+            if (!from || !to) {
+                alert('Prosím vyplň obě data');
+                return;
+            }
+
+            if (offerType === 'favor' && !favorNote) {
+                alert('Prosím vyplň, co by ti udělalo radost');
+                return;
+            }
+
+            const fromDate = new Date(from);
+            const toDate = new Date(to);
+
+            if (toDate < fromDate) {
+                alert('Datum konce musí být po datu začátku');
+                return;
+            }
+
+            const spot = parkingSpots.find(s => s.id === spotId);
+
+            try {
+                // Volat API pro vytvoření nabídky
+                const response = await fetch(`${API_URL}/offers`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        spot_id: spotId,
+                        user_id: currentUser.spotId, // Použijeme ID místa jako user_id pro jednoduchost
+                        date_from: from,
+                        date_to: to,
+                        offer_type: offerType,
+                        offer_note: offerType === 'favor' ? favorNote : null
+                    })
+                });
+
+                if (response.ok) {
+                    const offerText = offerType === 'paid' ? 'za 25 Kč/den' : `za ${favorNote}`;
+                    alert(`Místo ${spot.number} bylo nabídnuto k rezervaci ${offerText}!`);
+                    closeModal();
+
+                    // Znovu načíst data z API
+                    parkingSpots = await loadParkingSpotsFromAPI();
+                    renderParkingSpots();
+                } else {
+                    alert('Chyba při vytváření nabídky');
+                }
+            } catch (error) {
+                console.error('Chyba při vytváření nabídky:', error);
+                alert('Chyba při komunikaci se serverem');
+            }
+        }
+
+        // AKCE - Zrušit nabídku (vlastník)
+        async function cancelOffer(spotId) {
+            if (!confirm('Opravdu chceš zrušit nabídku?')) return;
+
+            const spot = parkingSpots.find(s => s.id === spotId);
+
+            if (!spot.offerId) {
+                alert('Toto místo nemá žádnou nabídku');
+                return;
+            }
+
+            try {
+                // Volat API pro smazání nabídky
+                const response = await fetch(`${API_URL}/offers/${spot.offerId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Nabídka byla zrušena');
+                    closeModal();
+
+                    // Znovu načíst data z API
+                    parkingSpots = await loadParkingSpotsFromAPI();
+                    renderParkingSpots();
+                } else {
+                    alert('Chyba při rušení nabídky');
+                }
+            } catch (error) {
+                console.error('Chyba při rušení nabídky:', error);
+                alert('Chyba při komunikaci se serverem');
+            }
+        }
+
+        // AKCE - Rezervovat místo (host)
+        async function reserveSpot(spotId) {
+            if (!confirm('Opravdu chceš rezervovat toto místo?')) return;
+
+            const spot = parkingSpots.find(s => s.id === spotId);
+
+            if (!spot.offerId) {
+                alert('Toto místo není k dispozici pro rezervaci');
+                return;
+            }
+
+            try {
+                // Volat API pro vytvoření rezervace
+                const response = await fetch(`${API_URL}/reservations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        offer_id: spot.offerId,
+                        spot_id: spotId,
+                        user_id: 999, // Dummy user_id pro hosta
+                        reserved_by_name: currentUser.name
+                    })
+                });
+
+                if (response.ok) {
+                    alert(`Místo ${spot.number} bylo úspěšně rezervováno!`);
+                    closeModal();
+
+                    // Znovu načíst data z API
+                    parkingSpots = await loadParkingSpotsFromAPI();
+                    renderParkingSpots();
+                } else {
+                    alert('Chyba při rezervaci místa');
+                }
+            } catch (error) {
+                console.error('Chyba při rezervaci:', error);
+                alert('Chyba při komunikaci se serverem');
+            }
+        }
+
+        // AKCE - Zrušit rezervaci (host)
+        async function cancelReservation(spotId) {
+            if (!confirm('Opravdu chceš zrušit rezervaci?')) return;
+
+            const spot = parkingSpots.find(s => s.id === spotId);
+
+            if (!spot.offerId) {
+                alert('Toto místo nemá žádnou rezervaci');
+                return;
+            }
+
+            try {
+                // Volat API pro smazání rezervace
+                const response = await fetch(`${API_URL}/reservations/${spot.offerId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Rezervace byla zrušena');
+                    closeModal();
+
+                    // Znovu načíst data z API
+                    parkingSpots = await loadParkingSpotsFromAPI();
+                    renderParkingSpots();
+                } else {
+                    alert('Chyba při rušení rezervace');
+                }
+            } catch (error) {
+                console.error('Chyba při rušení rezervace:', error);
+                alert('Chyba při komunikaci se serverem');
+            }
+        }
+
+        // POMOCNÉ FUNKCE
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('cs-CZ');
+        }
+
+        // INICIALIZACE - načíst data z API při spuštění
+        (async function init() {
+            try {
+                parkingSpots = await loadParkingSpotsFromAPI();
+                populateSpotSelection();
+            } catch (error) {
+                console.error('Chyba při inicializaci:', error);
+            }
+        })();
+    </script>
+</body>
+</html>
