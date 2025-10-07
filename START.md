@@ -29,19 +29,30 @@ npx http-server -p 8080
 
 ## 🎯 Rychlé spuštění pomocí skriptů
 
-### Windows (PowerShell):
+### Windows s WSL (DOPORUČENO):
+```bash
+# Spustí backend i frontend najednou přes WSL
+start-app-wsl.bat
+
+# Nebo přímo v WSL:
+wsl
+./start-app.sh
+```
+
+### Windows s nainstalovaným Node.js:
 ```powershell
-# Spustí backend i frontend najednou
+# Vyžaduje Node.js nainstalovaný ve Windows
 .\start-app.bat
 ```
 
 ### Linux/Mac/WSL:
 ```bash
-# Spustí backend
-./start-backend.sh
+# Spustí vše najednou
+./start-app.sh
 
-# V druhém terminálu spustí frontend
-./start-frontend.sh
+# Nebo odděleně:
+./start-backend.sh      # Backend
+./start-frontend.sh     # Frontend (v druhém terminálu)
 ```
 
 ---
@@ -49,15 +60,26 @@ npx http-server -p 8080
 ## 📋 Detailní postup
 
 ### 1. Kontrola požadavků
+
+**Pokud používáš WSL (Windows Subsystem for Linux):**
 ```bash
-# Zkontroluj Node.js (musí být 16+)
+# V WSL terminálu zkontroluj Node.js (musí být 16+)
 node --version
 
 # Zkontroluj npm
 npm --version
 ```
 
-Pokud nemáš Node.js: https://nodejs.org/
+**Pokud používáš Windows přímo:**
+```powershell
+# V PowerShell nebo CMD zkontroluj Node.js
+node --version
+npm --version
+```
+
+**Pokud nemáš Node.js:**
+- WSL: `curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - && sudo apt-get install -y nodejs`
+- Windows: Stáhni z https://nodejs.org/
 
 ### 2. Instalace backendu
 ```bash
